@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern To-Do List with Assignment</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e2d; 
+            color: #f1f1f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            color: #f1f0f0; 
+            margin-bottom: 20px;
+        }
+        #taskInput, #personInput {
+            padding: 15px;
+            width: 48%; 
+            background-color: #2c2c3e;
+            border: none;
+            color: #fff;
+            border-radius: 5px;
+            margin: 0 0.5%;
+            font-size: 14px;
+        }
+        button {
+            padding: 15px 30px;
+            background-color: #050505da; 
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #f1f0f0; 
+        }
+        table {
+            width: 100%;
+            margin-top: 25px;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            background-color: transparent;
+        }
+        th, td {
+            padding: 15px;
+            background-color: #2c2c3e; 
+            border-radius: 8px;
+            color: #f1f1f1;
+            text-align: center;
+        }
+        th {
+            font-weight: bold;
+            background-color: #3a3a4d; 
+        }
+        tr:hover td {
+            background-color: #33334d;
+        }
+        .remove-btn {
+            cursor: pointer;
+            color: #f1f0f0; 
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+        .remove-btn:hover {
+            color: #f1f0f0;
+        }
+        @media (max-width: 768px) {
+            #taskInput, #personInput {
+                width: calc(100% - 32px); 
+                margin-bottom: 10px;
+            }
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>To Do List</h1>
+        <input type="text" id="taskInput" placeholder="Task">
+        <input type="text" id="personInput" placeholder="Assigned to">
+        <button onclick="addTask()">Add Task</button>
+
+        <table id="taskTable">
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Assigned To</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
+            <tbody>
+              
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function addTask() {
+            const taskInput = document.getElementById("taskInput").value.trim();
+            const personInput = document.getElementById("personInput").value.trim();
+
+            if (taskInput === "" || personInput === "") {
+                alert("Please enter both a task and a person.");
+                return;
+            }
+
+            const table = document.getElementById("taskTable").getElementsByTagName("tbody")[0];
+            const newRow = table.insertRow();
+
+            const taskCell = newRow.insertCell(0);
+            taskCell.textContent = taskInput;
+
+            const personCell = newRow.insertCell(1);
+            personCell.textContent = personInput;
+
+            const actionCell = newRow.insertCell(2);
+            const removeBtn = document.createElement("span");
+            removeBtn.textContent = "✖";
+            removeBtn.classList.add("remove-btn");
+            removeBtn.onclick = function() {
+                removeTask(newRow);
+            };
+            actionCell.appendChild(removeBtn);
+
+            document.getElementById("taskInput").value = "";
+            document.getElementById("personInput").value = "";
+
+            saveTask(taskInput, personInput);
+        }
+
+        function removeTask(row) {
+            const taskText = row.cells[0].textContent;
+            row.remove();
+
+            removeTaskFromLocalStorage(taskText);
+        }
+
+        function saveTask(task, person) {
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks.push({ task, person });
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        function removeTaskFromLocalStorage(task) {
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks = tasks.filter(t => t.task !== task);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+        }
+
+        window.onload = function() {
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            const table = document.getElementById("taskTable").getElementsByTagName("tbody")[0];
+
+            tasks.forEach(({ task, person }) => {
+                const newRow = table.insertRow();
+
+                const taskCell = newRow.insertCell(0);
+                taskCell.textContent = task;
+
+                const personCell = newRow.insertCell(1);
+                personCell.textContent = person;
+
+                const actionCell = newRow.insertCell(2);
+                const removeBtn = document.createElement("span");
+                removeBtn.textContent = "✖";
+                removeBtn.classList.add("remove-btn");
+                removeBtn.onclick = function() {
+                    removeTask(newRow);
+                };
+                actionCell.appendChild(removeBtn);
+            });
+        }
+    </script>
+</body>
+</html>
